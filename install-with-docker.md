@@ -24,24 +24,14 @@ cd n8n-selfhosted
 
 ## 🧱 Archivo `docker-compose.yml`
 
-```
-version: "3.8"
+En lugar de incluir el archivo completo en el README, lo dejamos separado para una mejor organización del proyecto.
 
-services:
-  n8n:
-    image: n8nio/n8n:latest
-    restart: always
-    ports:
-      - "5678:5678"
-    environment:
-      - N8N_HOST=localhost
-      - N8N_PORT=5678
-      - N8N_PROTOCOL=http
-      - NODE_ENV=production
-      - GENERIC_TIMEZONE=America/Argentina/Buenos_Aires
-    volumes:
-      - ./n8n_data:/home/node/.n8n
-```
+Podés ver o descargar el archivo desde este enlace:
+
+👉 **[`docker-compose.yml`](docker-compose.yml)**
+
+Este archivo define el servicio de n8n, los puertos expuestos, las variables de entorno básicas y el volumen para persistir los datos en `./n8n_data/`.
+
 
 ## ▶️ Levantar n8n
 
