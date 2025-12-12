@@ -1,0 +1,446 @@
+{
+  "name": "Sentiment-Analysis",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "f8dd5dce-7c5b-402e-97a0-473e3213a132",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -672,
+        0
+      ],
+      "id": "67d704ee-72cd-4b30-9abc-5d33c63e7f13",
+      "name": "Obtengo comentarios",
+      "webhookId": "f8dd5dce-7c5b-402e-97a0-473e3213a132"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "body.comentarios",
+        "include": "selectedOtherFields",
+        "fieldsToInclude": "body.fecha",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        0
+      ],
+      "id": "43bd2955-beda-4d3b-abd9-372a182c3ab9",
+      "name": "Separo en diferentes comentarios"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cc78943f-c9b9-40ca-b2dc-6cc4a99611d9",
+              "name": "id",
+              "value": "={{ $json[\"body.comentarios\"].id }}",
+              "type": "number"
+            },
+            {
+              "id": "c7b6d999-ef98-4de6-8123-aff5631b5e21",
+              "name": "fecha",
+              "value": "={{ $json[\"body.fecha\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "36fbd4a8-2917-480f-941e-a6500e2939a2",
+              "name": "id_producto",
+              "value": "={{ $json[\"body.comentarios\"].id_producto }}",
+              "type": "number"
+            },
+            {
+              "id": "1cc8155d-416f-430a-954d-75f15432f2bd",
+              "name": "comentario",
+              "value": "={{ $json[\"body.comentarios\"].texto_comentario }}",
+              "type": "string"
+            },
+            {
+              "id": "7df3f174-62bb-4732-a097-9116df011ed2",
+              "name": "correo_usuario",
+              "value": "={{ $json[\"body.comentarios\"].correo_usuario }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -256,
+        0
+      ],
+      "id": "322cb6be-ce59-46c7-828c-39819c7bd36f",
+      "name": "Defino los aspectos por comentario"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Analizá el siguiente comentario y devolvé EXCLUSIVAMENTE un objeto JSON válido.\nNO agregues markdown, NO utilices ```json, NO utilices comillas triples, NO utilices fences y NO formatees como bloque de código.\nLa salida debe comenzar con '{' y terminar con '}' sin ningún carácter antes o después.\n\nFormato obligatorio:\n\n{\n  \"sentimiento\": \"positivo | negativo | neutro\",\n  \"aspectos_positivos\": [\"lista de aspectos positivos\"],\n  \"aspectos_negativos\": [\"lista de aspectos negativos\"]\n}\n\nReglas:\n- \"sentimiento\" solo puede ser: \"positivo\", \"negativo\" o \"neutro\".\n- No inventes aspectos. Solo incluí los mencionados explícitamente.\n- Si no hay aspectos positivos o negativos, devolvé un array vacío.\n- NO escribas explicaciones, descripciones, textos adicionales ni comentario alguno fuera del JSON.\n- Recordá que la salida NO debe tener markdown ni fences. Solo el JSON.\n\nComentario:\n\"{{ $json.comentario }}\"\n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        -32,
+        -176
+      ],
+      "id": "352979a0-3022-4dc5-b4e8-f2395b9d7735",
+      "name": "Le pido a la IA un sentiment analysis",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ghpjodevu25QLuQB",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        480,
+        -16
+      ],
+      "id": "432ebb21-547a-4225-8b25-db2a5149f545",
+      "name": "Hago un merge entre el sentiment analysis y el id_producto"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "eaba8a4e-6acd-4354-a35b-17f7284420ac",
+              "name": "sentimiento",
+              "value": "={{ JSON.parse($json[\"content\"][\"parts\"][0][\"text\"]).sentimiento }}",
+              "type": "string"
+            },
+            {
+              "id": "357a9889-ef7f-4852-8582-c8bf179660a8",
+              "name": "aspectos_positivos",
+              "value": "={{ JSON.parse($json[\"content\"][\"parts\"][0][\"text\"]).aspectos_positivos.join(\", \") }}",
+              "type": "string"
+            },
+            {
+              "id": "85cc9101-16d7-4262-a813-7663fb1826bb",
+              "name": "aspectos negativos",
+              "value": "={{ JSON.parse($json[\"content\"][\"parts\"][0][\"text\"]).aspectos_negativos.join(\", \") }}",
+              "type": "string"
+            },
+            {
+              "id": "1b1d771e-eb53-45c6-b38e-751c1c55b8e0",
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        304,
+        -176
+      ],
+      "id": "8c3edb88-ccb8-4c11-87e4-388bde65ed5f",
+      "name": "Obtengo y formateo campos de interés"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "97ed6c79-48ac-4bdf-b568-44d687dd0072",
+              "name": "fecha",
+              "value": "={{ $json.fecha }}",
+              "type": "string"
+            },
+            {
+              "id": "bd800598-ae35-4873-8ccf-8a536219a6ad",
+              "name": "id_producto",
+              "value": "={{ $json.id_producto }}",
+              "type": "number"
+            },
+            {
+              "id": "dfa7056d-8711-48b0-a7ab-940b46752f15",
+              "name": "comentario",
+              "value": "={{ $json.comentario }}",
+              "type": "string"
+            },
+            {
+              "id": "e87417b4-8db6-4373-b594-132f8ad3a114",
+              "name": "sentimiento",
+              "value": "={{ $json.sentimiento }}",
+              "type": "string"
+            },
+            {
+              "id": "12bfb8ab-29f2-4c61-9e1c-46a2a1779a8d",
+              "name": "aspectos_positivos",
+              "value": "={{ $json.aspectos_positivos }}",
+              "type": "string"
+            },
+            {
+              "id": "c7eb71a5-504b-478f-903a-8950634764da",
+              "name": "aspectos negativos",
+              "value": "={{ $json[\"aspectos negativos\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "17299dba-664f-46fd-921d-9484c78816ef",
+              "name": "correo_usuario",
+              "value": "={{ $json.correo_usuario }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        688,
+        -16
+      ],
+      "id": "ca55a0fc-e48d-40eb-a2ba-dd1d2a3bbe2f",
+      "name": "Obtengo datos a persistir"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1iLFTipZUO4HojYFMIcsv6eCHX9iUY2e2fNGjeObZTiw",
+          "mode": "list",
+          "cachedResultName": "Gamehub \"El malecón\"",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1iLFTipZUO4HojYFMIcsv6eCHX9iUY2e2fNGjeObZTiw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 171648966,
+          "mode": "list",
+          "cachedResultName": "Comentarios",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1iLFTipZUO4HojYFMIcsv6eCHX9iUY2e2fNGjeObZTiw/edit#gid=171648966"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "fecha",
+              "displayName": "fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "id_producto",
+              "displayName": "id_producto",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "comentario",
+              "displayName": "comentario",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "sentimiento",
+              "displayName": "sentimiento",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "aspectos_positivos",
+              "displayName": "aspectos_positivos",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "aspectos negativos",
+              "displayName": "aspectos negativos",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "correo_usuario",
+              "displayName": "correo_usuario",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        896,
+        -16
+      ],
+      "id": "c30a2245-bb9f-4ca0-ac22-6f22effda03b",
+      "name": "Los guardo junto a los sentimientos y aspectos en Google Sheet",
+      "credentials": {
+        "googleApi": {
+          "id": "zaiVl0mDb74AIrJp",
+          "name": "Google Service Account account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Obtengo comentarios": {
+      "main": [
+        [
+          {
+            "node": "Separo en diferentes comentarios",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Separo en diferentes comentarios": {
+      "main": [
+        [
+          {
+            "node": "Defino los aspectos por comentario",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Defino los aspectos por comentario": {
+      "main": [
+        [
+          {
+            "node": "Le pido a la IA un sentiment analysis",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Hago un merge entre el sentiment analysis y el id_producto",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Le pido a la IA un sentiment analysis": {
+      "main": [
+        [
+          {
+            "node": "Obtengo y formateo campos de interés",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hago un merge entre el sentiment analysis y el id_producto": {
+      "main": [
+        [
+          {
+            "node": "Obtengo datos a persistir",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtengo y formateo campos de interés": {
+      "main": [
+        [
+          {
+            "node": "Hago un merge entre el sentiment analysis y el id_producto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtengo datos a persistir": {
+      "main": [
+        [
+          {
+            "node": "Los guardo junto a los sentimientos y aspectos en Google Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Los guardo junto a los sentimientos y aspectos en Google Sheet": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4a080c69-4d23-4343-82a0-e9cce36c58a2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "042ae2ace0af66373f4a3a05bf4dcdcaace4b59f63e75d849c1a038eedc71d47"
+  },
+  "id": "cwhW1xKNPGvuwSak",
+  "tags": []
+}
