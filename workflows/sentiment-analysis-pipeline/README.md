@@ -1,6 +1,6 @@
 # 😊 Sentiment Analysis Pipeline
 
-![Workflow overview](workflow.png)
+![Workflow overview](workflow-sa.png)
 
 This workflow implements an **end-to-end sentiment and aspect-based analysis pipeline** using **n8n** and an **LLM-based sentiment model**.
 
