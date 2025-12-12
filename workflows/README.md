@@ -1,77 +1,47 @@
-# 😊 Sentiment Analysis Pipeline
+# 🔄 Automation Workflows
 
-![Workflow overview](workflow.png)
+This directory contains a collection of **AI-driven automation workflows built with n8n**.
 
-This workflow implements an **end-to-end sentiment and aspect-based analysis pipeline** using **n8n** and an **LLM-based sentiment model**.
+Each workflow is designed as a **self-contained unit**, combining data ingestion, processing logic, AI-based analysis and persistence or reporting steps.
 
-It is designed to process user comments, extract relevant aspects, analyze sentiment, and persist structured results for further analysis.
-
----
-
-## 🧩 Workflow overview
-
-The pipeline follows these main steps:
-
-1. 📥 **Data ingestion**  
-   Comments are retrieved via an HTTP request (e.g. API endpoint).
-
-2. ✂️ **Comment separation**  
-   Incoming payloads are split so that each comment is processed independently.
-
-3. 🏷️ **Aspect definition**  
-   Relevant aspects are defined per comment to enable aspect-based sentiment analysis.
-
-4. 🤖 **Sentiment analysis with AI**  
-   Each comment and its aspects are sent to an LLM to obtain sentiment information.
-
-5. 🧹 **Field extraction & formatting**  
-   The AI response is parsed and formatted to keep only relevant fields.
-
-6. 🔀 **Merge results**  
-   Original comment data and sentiment analysis results are merged into a single structure.
-
-7. 💾 **Persistence**  
-   Final structured data (comments, aspects and sentiments) is stored in Google Sheets.
+The focus is on **real-world use cases**, emphasizing clarity, modularity and extensibility.
 
 ---
 
-## 📥 Inputs
+## 📂 Structure
 
-- Text comments
-- Optional metadata (source, date, product, etc.)
-- Predefined aspects per comment
+Each workflow is organized in its own directory and includes:
 
----
+- 📄 `workflow.json`  
+  Exported n8n workflow ready to be imported.
 
-## 📤 Outputs
+- 🖼 `workflow.png`  
+  Visual overview of the workflow for quick understanding.
 
-- Sentiment label (e.g. positive / neutral / negative)
-- Aspect-level sentiment information
-- Structured records ready for analysis or reporting
-
----
-
-## 🔧 Nodes used
-
-- 🌐 HTTP Request
-- ✂️ Split / Item processing
-- ✏️ Set / Manual nodes
-- 🤖 LLM (sentiment analysis)
-- 🔀 Merge
-- 📊 Google Sheets (append rows)
+- 📝 `README.md`  
+  Detailed documentation explaining:
+  - the use case
+  - inputs and outputs
+  - main processing steps
+  - relevant nodes and notes
 
 ---
 
-## 🧠 Notes
+## 🧠 Design principles
 
-- The workflow is designed to be **modular** and easy to extend.
-- Aspect definition can be adapted depending on the domain.
-- The persistence layer can be replaced with a database or data warehouse.
-- Credentials and API keys are managed via n8n credentials (not included in this repo).
+- 🔹 **Modularity**: workflows are easy to adapt and extend.
+- 🔹 **Readability**: clear structure and descriptive node naming.
+- 🔹 **Practical focus**: oriented to applied automation scenarios.
+- 🔹 **AI-first**: integration of NLP and LLM-based processing where relevant.
 
 ---
 
-## ⚠️ Disclaimer
+## ⚠️ Notes
 
-This workflow is provided for **demonstration and educational purposes**.  
-No sensitive data or credentials are included.
+- Credentials and API keys are managed via n8n credentials and are **not included**.
+- Workflows can be executed locally using the Docker setup provided in the repository.
+- Persistence layers (e.g. Google Sheets, databases) can be replaced depending on the use case.
+
+---
+
+Each workflow directory provides all the information needed to understand and run the automation independently.
