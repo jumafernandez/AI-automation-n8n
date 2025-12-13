@@ -33,7 +33,7 @@ The workflows are designed to be **modular, readable and easy to extend**.
 
 Instructions for running n8n locally using Docker:
 
-- 🐧🍎 [Docker setup (macOS/Linux)](docker/install-with-docker-mac.md)
+- 🍎🐧 [Docker setup (macOS/Linux)](docker/install-with-docker-mac.md)
 - 🪟 [Docker setup (Windows)](docker/install-with-docker-win.md)
 
 A ready-to-use `docker-compose.yml` file is included.
